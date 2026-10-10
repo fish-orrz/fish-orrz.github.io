@@ -2,6 +2,14 @@ baseURL: https://fish-orrz.github.io/
 title: The Fish Blog
 languageCode: zh-TW
 theme: hextra
+enableGitInfo: true
+
+frontmatter:
+  lastmod:
+    - ':git'
+    - lastmod
+    - date
+    - ':fileModTime'
 
 menu:
   main:

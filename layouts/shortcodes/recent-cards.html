@@ -1,0 +1,24 @@
+{{- $limit := int (.Get "limit" | default 9) -}}
+{{- $pages := where site.RegularPages "Section" "in" (slice "docs" "blog") -}}
+{{- $pages = first $limit (sort $pages "Lastmod" "desc") -}}
+<div class="recent-cards">
+{{- range $pages }}
+  <a class="recent-card" href="{{ .RelPermalink }}">
+    <div class="recent-meta">
+      <span class="recent-tag">{{ if eq .Section "blog" }}Blog{{ else }}{{ .Parent.Title }}{{ end }}</span>
+      <time>{{ .Lastmod.Format "2006-01-02" }}</time>
+    </div>
+    <div class="recent-title">{{ .Title }}</div>
+    <div class="recent-desc">{{ with .Description }}{{ . }}{{ else }}{{ .Summary | plainify | truncate 90 }}{{ end }}</div>
+  </a>
+{{- end }}
+</div>
+<style>
+.recent-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin:1.5rem 0}
+.recent-card{display:block;padding:1rem 1.1rem;border:1px solid rgba(128,128,128,.3);border-radius:.75rem;text-decoration:none!important;color:inherit;transition:transform .15s,border-color .15s,box-shadow .15s}
+.recent-card:hover{transform:translateY(-2px);border-color:#3b82f6;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.recent-meta{display:flex;justify-content:space-between;font-size:.75rem;opacity:.7;margin-bottom:.4rem}
+.recent-tag{font-weight:600}
+.recent-title{font-weight:600;font-size:1.05rem;margin-bottom:.3rem}
+.recent-desc{font-size:.85rem;opacity:.75;line-height:1.4}
+</style>
