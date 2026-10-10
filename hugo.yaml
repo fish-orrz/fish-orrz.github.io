@@ -1,0 +1,29 @@
+baseURL: https://fish-orrz.github.io/
+title: The Fish Blog
+languageCode: zh-TW
+theme: hextra
+
+menu:
+  main:
+    - identifier: docs
+      name: Docs
+      pageRef: /docs
+      weight: 1
+    - identifier: blog
+      name: Blog
+      pageRef: /blog
+      weight: 2
+    - name: Search
+      weight: 3
+      params:
+        type: search
+    - name: GitHub
+      weight: 4
+      url: https://github.com/fish-orrz/fish-orrz.github.io
+      params:
+        icon: github
+
+params:
+  search:
+    enable: true
+    type: flexsearch
