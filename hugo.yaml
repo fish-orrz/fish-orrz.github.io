@@ -1,6 +1,6 @@
 baseURL: https://fish-orrz.github.io/
 title: The Fish Blog
-languageCode: zh-TW
+locale: zh-TW
 theme: hextra
 enableGitInfo: true
 
