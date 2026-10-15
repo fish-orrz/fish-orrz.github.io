@@ -42,28 +42,11 @@ python --version
 Python 3.10.11
 ```
 
-### 4. 下載 get-pip.py
-
-下載 <https://bootstrap.pypa.io/get-pip.py>,放到 `D:\Python`。
-
-### 5. python get-pip.py
-
-安裝 pip,完成後 `D:\Python` 會多出 `Lib` 與 `Scripts` 目錄。
-
-```powershell
-python get-pip.py
-```
-
-```
-Collecting pip
-  Downloading pip-24.0-py3-none-any.whl (2.1 MB)
-Installing collected packages: pip
-Successfully installed pip-24.0
-```
-
-### 6. 編輯 python310._pth
+### 4. 編輯 python310._pth
 
 用文字編輯器開啟 `D:\Python\python310._pth`,新增 `Lib\site-packages`,並取消 `import site` 前面的 `#`。
+
+檔名會依版本而不同,例如 3.11 為 `python311._pth`。
 
 ```
 python310.zip
@@ -71,6 +54,25 @@ python310.zip
 Lib\site-packages
 
 import site
+```
+
+### 5. 下載 get-pip.py
+
+下載 <https://bootstrap.pypa.io/get-pip.py>,放到 `D:\Python`。
+
+### 6. python get-pip.py
+
+安裝 pip,完成後 `D:\Python` 會多出 `Lib` 與 `Scripts` 目錄。
+
+```powershell
+cd D:\Python
+python get-pip.py
+```
+
+```
+Collecting pip
+Installing collected packages: pip
+Successfully installed pip-25.0
 ```
 
 ### 7. pip --version
@@ -82,17 +84,17 @@ pip --version
 ```
 
 ```
-pip 24.0 from D:\Python\Lib\site-packages\pip (python 3.10)
+pip 25.0 from D:\Python\Lib\site-packages\pip (python 3.10)
 ```
 
 ### 8. python -m pip install --upgrade pip
 
-升級 pip 到最新版。
+之後要更新 pip 時使用。已是最新版會顯示 `Requirement already satisfied`。
 
 ```powershell
 python -m pip install --upgrade pip
 ```
 
 ```
-Successfully installed pip-25.0
+Requirement already satisfied: pip in d:\python\lib\site-packages (25.0)
 ```
