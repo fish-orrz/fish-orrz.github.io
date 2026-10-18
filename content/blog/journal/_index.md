@@ -1,0 +1,5 @@
+---
+title: Journal
+---
+
+{{< recent-cards >}}
