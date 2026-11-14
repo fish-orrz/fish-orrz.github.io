@@ -274,6 +274,99 @@ spec:
 
 ---
 
+## 「我要允許誰連誰」怎麼寫
+
+寫規則前,先用一句話講出需求:**「我要允許 A(來源)連到 B(目的)的某個 port」**。再依下面兩個口訣填寫:
+
+- **規則放在目的地(B)**:用 `Ingress`。`spec.podSelector` 填 **B**,`from` 填 **A**。
+- **規則放在來源(A)**:用 `Egress`。`spec.podSelector` 填 **A**,`to` 填 **B**。
+
+> `spec.podSelector` 永遠是「這份規則管的對象」。寫 `Ingress` 時它是**目的地**,寫 `Egress` 時它是**來源**。填反了是最常見的錯誤。
+
+以「web 要連 db 的 3306」為例:
+
+| 規則放在 | `policyTypes` | `spec.podSelector`(管誰) | `from` / `to`(對方是誰) |
+|---|---|---|---|
+| db 這邊(目的) | `Ingress` | db | `from`:web |
+| web 這邊(來源) | `Egress` | web | `to`:db |
+
+### 來源和目的,兩邊都要設定嗎?
+
+一條連線要先通過「來源的出門檢查」,再通過「目的地的進門檢查」。判斷方式很簡單:
+
+- **哪一邊被規則擋住了,那一邊就要開。**
+- 沒被任何規則選中的那一邊,預設全通,不用設定。
+
+| 目前狀況 | 需要設定 |
+|---|---|
+| 兩邊都沒有任何規則 | 都不用,本來就通 |
+| 只有 db 擋進來 | 只要設定 db 的 Ingress |
+| 只有 web 擋出去 | 只要設定 web 的 Egress |
+| 兩邊都擋(最嚴格) | **兩邊都要設定** |
+
+> 回程不用另外開。web 連到 db 之後,db 回應給 web 的流量會自動放行。
+
+### 兩邊都要設定的範例(web → db:3306)
+
+**① 目的地 db:允許 web 連進來**
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-allow-web             # 放在 db 這邊
+  namespace: demo
+spec:
+  podSelector:                   # 管誰:db(目的)
+    matchLabels:
+      role: db
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:           # 誰可以來:web(來源)
+            matchLabels:
+              role: web
+      ports:
+        - protocol: TCP
+          port: 3306
+```
+
+**② 來源 web:允許連出去到 db**
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: web-allow-to-db          # 放在 web 這邊
+  namespace: demo
+spec:
+  podSelector:                   # 管誰:web(來源)
+    matchLabels:
+      role: web
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:           # 可以去哪:db(目的)
+            matchLabels:
+              role: db
+      ports:
+        - protocol: TCP
+          port: 3306
+    - ports:                     # DNS 一樣要放行
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+```
+
+兩份的 `podSelector` 和 `from` / `to` 剛好**互換**,這樣看就不容易搞混。
+
+跨 namespace(ns1 → ns2)也是同樣概念:ns2 是目的地,放 Ingress;ns1 是來源,有擋出去時才需要 Egress,範例見後面章節。
+
+---
+
 ## 同一個 namespace 的常見設定
 
 以下範例都放在 `demo` 這個 namespace。
@@ -584,3 +677,5 @@ kubectl exec -n ns1 <pod名稱> -- curl -sk -m 5 https://<service名稱>.ns2.svc
 | 放行特定 IP | 用 `ipBlock` 寫 `cidr` |
 | 經過 Ingress 的網站 | 放行 **Ingress Controller 所在的 namespace**,port 寫 Pod 的 port |
 | 標籤 | `role: web` 只是便利貼,Deployment、Service、NetworkPolicy 用同一個標籤找人 |
+| 允許 A 連 B | B 放 `Ingress`(`podSelector` 填 B、`from` 填 A);A 有擋出去才需要放 `Egress`(`podSelector` 填 A、`to` 填 B) |
+| 哪邊要設定 | 哪一邊被規則擋住,那一邊就要開,回程不用另外開 |
