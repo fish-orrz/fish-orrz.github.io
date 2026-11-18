@@ -35,3 +35,6 @@ params:
   search:
     enable: true
     type: flexsearch
+services:
+  googleAnalytics:
+    ID: G-YD55X1ZCKB
